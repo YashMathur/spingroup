@@ -3,6 +3,7 @@ package tasks
 import (
 	"log"
 	"os/exec"
+	"sync"
 )
 
 // Task struct stores the properties of a task
@@ -22,15 +23,21 @@ func Create(name string, cmd ...string) Task {
 }
 
 // Execute executes a process
-func Execute(name string, args ...string) {
+func Execute(wg *sync.WaitGroup, name string, args ...string) {
 	cmd := exec.Command(name, args...)
 
 	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
+
+	defer wg.Done()
 }
 
 // Start begins executing the task
 func (task *Task) Start() {
-	go Execute(task.cmd[0], task.cmd[1:]...)
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go Execute(&wg, task.cmd[0], task.cmd[1:]...)
+	wg.Wait()
 }
