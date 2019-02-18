@@ -40,4 +40,11 @@ func (task *Task) Start() {
 	wg.Add(1)
 	go Execute(&wg, task.cmd[0], task.cmd[1:]...)
 	wg.Wait()
+
+	task.Complete()
+}
+
+// Complete sets the Task done
+func (task *Task) Complete() {
+	task.done = true
 }
