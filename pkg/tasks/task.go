@@ -34,7 +34,7 @@ func Execute(wg *sync.WaitGroup, name string, args ...string) {
 }
 
 // Start begins executing the task
-func (task *Task) Start() {
+func (task *Task) Start(parentWg *sync.WaitGroup) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -42,6 +42,8 @@ func (task *Task) Start() {
 	wg.Wait()
 
 	task.Complete()
+
+	defer parentWg.Done()
 }
 
 // Complete sets the Task done
