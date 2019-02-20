@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"sync"
@@ -22,8 +23,8 @@ func Create(name string, cmd ...string) Task {
 	}
 }
 
-// Execute executes a process
-func Execute(wg *sync.WaitGroup, name string, args ...string) {
+// execute executes a process
+func execute(wg *sync.WaitGroup, name string, args ...string) {
 	cmd := exec.Command(name, args...)
 
 	if err := cmd.Run(); err != nil {
@@ -38,15 +39,26 @@ func (task *Task) Start(parentWg *sync.WaitGroup) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	go Execute(&wg, task.cmd[0], task.cmd[1:]...)
+	go execute(&wg, task.cmd[0], task.cmd[1:]...)
 	wg.Wait()
 
-	task.Complete()
+	task.complete()
 
 	defer parentWg.Done()
 }
 
-// Complete sets the Task done
-func (task *Task) Complete() {
+// IsDone checks whether a Task is done
+func (task *Task) IsDone() bool {
+	return task.done
+}
+
+// Name returns the task's name
+func (task *Task) Name() string {
+	return task.name
+}
+
+// complete sets the Task done
+func (task *Task) complete() {
+	fmt.Printf("Completing %s\n", task.name)
 	task.done = true
 }
