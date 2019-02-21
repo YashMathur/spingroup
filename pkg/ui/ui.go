@@ -3,8 +3,11 @@ package ui
 // UI contains info on the UI of the spingroup
 type UI struct {
 	tasks    int
-	startRow int
-	spinner  []string
+	StartRow int
+	Spinner  []string
+	Reverse  bool
+	iter     int
+	step     int
 }
 
 // Create creates a new UI struct
@@ -13,22 +16,35 @@ func Create(tasks int) *UI {
 
 	return &UI{
 		tasks:    tasks,
-		startRow: x,
-		spinner:  []string{"⬒", "⬔", "⬓", "⬕"},
+		StartRow: x,
+		Spinner:  []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"},
+		Reverse:  false,
+		iter:     0,
+		step:     1,
 	}
 }
 
-// StartRow returns the UI's start row
-func (ui *UI) StartRow() int {
-	return ui.startRow
+// GetLength returns the length of the spinner animation
+func (ui *UI) GetLength() int {
+	return len(ui.Spinner)
 }
 
-// Length returns the length of the spinner animation
-func (ui *UI) Length() int {
-	return len(ui.spinner)
+// GetSpinner returns spinner at a point in time
+func (ui *UI) GetSpinner() string {
+	return ui.Spinner[ui.iter]
 }
 
-// Spinner returns spinner at a point in time
-func (ui *UI) Spinner(i int) string {
-	return ui.spinner[i]
+// Step steps the spinner index to the next index depending on ui.Reverse
+func (ui *UI) Step() {
+	if ui.Reverse {
+		if ui.step > 0 && (ui.iter+ui.step)%ui.GetLength() == 0 {
+			ui.step = ui.step * -1
+		}
+
+		if ui.step < 0 && (ui.iter+ui.step)%ui.GetLength() == -1 {
+			ui.step = ui.step * -1
+		}
+	}
+
+	ui.iter = (ui.iter + ui.step) % ui.GetLength()
 }

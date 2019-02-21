@@ -2,8 +2,10 @@ package spingroup
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"./pkg/tasks"
 	"./pkg/ui"
@@ -36,31 +38,28 @@ func (sg *Spingroup) Add(name string, cmd ...string) {
 
 // Wait waits for all tasks in the spingroup to complete
 func (sg *Spingroup) Wait() {
-	var gui = ui.Create(len(sg.tasks))
+	gui := ui.Create(len(sg.tasks))
+	lenSpinner := utf8.RuneCountInString(gui.GetSpinner())
 
-	for i, task := range sg.tasks {
-		row := gui.StartRow() + i
-
-		fmt.Print(ui.Move(row, 1))
-		fmt.Printf("  %s %d", task.Name(), i)
+	for _, task := range sg.tasks {
+		fmt.Printf("%s %s\n", strings.Repeat(" ", lenSpinner), task.Name)
 	}
 
-	fmt.Print(ui.Hide())
-	iter := 0
+	ui.Hide()
 
 	for loop := true; loop; {
 		var allDone = true
 
 		for i, task := range sg.tasks {
-			row := gui.StartRow() + i
+			row := gui.StartRow + i
 
-			fmt.Print(ui.Move(row, 1))
+			ui.Move(row, 1)
 
 			if !task.Done {
-				fmt.Print(gui.Spinner(iter))
+				fmt.Print(gui.GetSpinner())
 				allDone = false
 			} else {
-				fmt.Print("g")
+				fmt.Print("✓")
 			}
 		}
 
@@ -68,11 +67,12 @@ func (sg *Spingroup) Wait() {
 			break
 		}
 
-		iter = (iter + 1) % gui.Length()
+		gui.Step()
 		time.Sleep(sg.sleep)
 	}
+
 	fmt.Printf("\n")
-	fmt.Print(ui.Show())
+	ui.Show()
 
 	wg.Wait()
 }
