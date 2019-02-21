@@ -13,48 +13,48 @@ import (
 
 const esc = "\x1b["
 
-func ansi(pos int, code string) string {
-	return fmt.Sprintf("%s%d%s", esc, pos, code)
+func ansi(format string, args ...interface{}) {
+	fmt.Print(fmt.Sprintf("%s%s", esc, fmt.Sprintf(format, args...)))
 }
 
 // Up moves the cursor up n rows
-func Up(n int) string {
-	return ansi(n, "A")
+func Up(n int) {
+	ansi("%d%s", n, "A")
 }
 
 // Down moves the cursor down n rows
-func Down(n int) string {
-	return ansi(n, "B")
+func Down(n int) {
+	ansi("%d%s", n, "B")
 }
 
 // Right moves the cursor right n cols
-func Right(n int) string {
-	return ansi(n, "C")
+func Right(n int) {
+	ansi("%d%s", n, "C")
 }
 
 // Left moves the cursor left n cols
-func Left(n int) string {
-	return ansi(n, "D")
+func Left(n int) {
+	ansi("%d%s", n, "D")
 }
 
 // Move moves cursor to position r, c
-func Move(r, c int) string {
-	return fmt.Sprintf("%s%d;%d%s", esc, r, c, "H")
+func Move(r, c int) {
+	ansi("%d;%d%s", r, c, "H")
 }
 
 // Clearleft clears the line
-func Clearleft() string {
-	return ansi(1, "K")
+func Clearleft() {
+	ansi("%d%s", 1, "K")
 }
 
 // Hide makes the cursor invisible
-func Hide() string {
-	return fmt.Sprintf("%s?25l", esc)
+func Hide() {
+	ansi("%s", "?25l")
 }
 
 // Show makes the cursor visible
-func Show() string {
-	return fmt.Sprintf("%s?25h", esc)
+func Show() {
+	ansi("%s", "?25h")
 }
 
 // CursorPosition prints the cursor's position
