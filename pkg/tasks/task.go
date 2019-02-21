@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 	"sync"
@@ -9,16 +8,16 @@ import (
 
 // Task struct stores the properties of a task
 type Task struct {
-	name string
-	done bool
+	Name string
+	Done bool
 	cmd  []string
 }
 
 // Create creates and returns a Task
 func Create(name string, cmd ...string) Task {
 	return Task{
-		name: name,
-		done: false,
+		Name: name,
+		Done: false,
 		cmd:  cmd,
 	}
 }
@@ -47,18 +46,7 @@ func (task *Task) Start(parentWg *sync.WaitGroup) {
 	defer parentWg.Done()
 }
 
-// IsDone checks whether a Task is done
-func (task *Task) IsDone() bool {
-	return task.done
-}
-
-// Name returns the task's name
-func (task *Task) Name() string {
-	return task.name
-}
-
 // complete sets the Task done
 func (task *Task) complete() {
-	fmt.Printf("Completing %s\n", task.name)
-	task.done = true
+	task.Done = true
 }
