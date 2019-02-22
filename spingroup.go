@@ -2,8 +2,11 @@ package spingroup
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 	"unicode/utf8"
 
@@ -27,6 +30,10 @@ func Create(sleep time.Duration) *Spingroup {
 	}
 }
 
+func cleanup() {
+	ui.Show()
+}
+
 // Add appends a task to the Spingroup
 func (sg *Spingroup) Add(name string, cmd ...string) {
 	wg.Add(1)
@@ -38,6 +45,14 @@ func (sg *Spingroup) Add(name string, cmd ...string) {
 
 // Wait waits for all tasks in the spingroup to complete
 func (sg *Spingroup) Wait() {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		cleanup()
+		os.Exit(1)
+	}()
+
 	gui := ui.Create(len(sg.tasks))
 	lenSpinner := utf8.RuneCountInString(gui.GetSpinner())
 
@@ -52,14 +67,13 @@ func (sg *Spingroup) Wait() {
 
 		for i, task := range sg.tasks {
 			row := gui.StartRow + i
-
 			ui.Move(row, 1)
 
 			if !task.Done {
 				fmt.Print(gui.GetSpinner())
 				allDone = false
 			} else {
-				fmt.Print("✓")
+				fmt.Print(task.FinalMessage())
 			}
 		}
 

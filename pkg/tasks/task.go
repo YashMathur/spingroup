@@ -8,26 +8,41 @@ import (
 
 // Task struct stores the properties of a task
 type Task struct {
-	Name string
-	Done bool
-	cmd  []string
+	Name    string
+	Done    bool
+	success bool
+	cmd     []string
+	message Message
+}
+
+// Message stores messages to be displayed in an event
+type Message struct {
+	success string
+	failure string
 }
 
 // Create creates and returns a Task
 func Create(name string, cmd ...string) Task {
 	return Task{
-		Name: name,
-		Done: false,
-		cmd:  cmd,
+		Name:    name,
+		Done:    false,
+		cmd:     cmd,
+		success: false,
+		message: Message{
+			success: "✓",
+			failure: "✗",
+		},
 	}
 }
 
 // execute executes a process
-func execute(wg *sync.WaitGroup, name string, args ...string) {
-	cmd := exec.Command(name, args...)
+func (task *Task) execute(wg *sync.WaitGroup) {
+	cmd := exec.Command(task.cmd[0], task.cmd[1:]...)
 
 	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
+	} else if err == nil {
+		task.success = true
 	}
 
 	defer wg.Done()
@@ -38,12 +53,21 @@ func (task *Task) Start(parentWg *sync.WaitGroup) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
-	go execute(&wg, task.cmd[0], task.cmd[1:]...)
+	go task.execute(&wg)
 	wg.Wait()
 
 	task.complete()
 
 	defer parentWg.Done()
+}
+
+// FinalMessage returns the final message after a task is complete
+func (task *Task) FinalMessage() string {
+	if task.success {
+		return task.message.success
+	}
+
+	return task.message.failure
 }
 
 // complete sets the Task done
