@@ -43,6 +43,16 @@ func (sg *Spingroup) Add(name string, cmd ...string) {
 	go task.Start(&wg)
 }
 
+// AddFunc adds a task that executes a function
+func (sg *Spingroup) AddFunc(name string, fn func(*sync.WaitGroup, *bool, *bool)) {
+	wg.Add(1)
+
+	task := tasks.Create(name)
+	sg.tasks = append(sg.tasks, &task)
+
+	go fn(&wg, &task.Done, &task.Success)
+}
+
 // Wait waits for all tasks in the spingroup to complete
 func (sg *Spingroup) Wait() {
 	c := make(chan os.Signal)

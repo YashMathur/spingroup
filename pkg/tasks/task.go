@@ -10,7 +10,7 @@ import (
 type Task struct {
 	Name    string
 	Done    bool
-	success bool
+	Success bool
 	cmd     []string
 	message Message
 }
@@ -27,7 +27,7 @@ func Create(name string, cmd ...string) Task {
 		Name:    name,
 		Done:    false,
 		cmd:     cmd,
-		success: false,
+		Success: false,
 		message: Message{
 			success: "✓",
 			failure: "✗",
@@ -42,7 +42,7 @@ func (task *Task) execute(wg *sync.WaitGroup) {
 	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	} else if err == nil {
-		task.success = true
+		task.Success = true
 	}
 
 	defer wg.Done()
@@ -63,7 +63,7 @@ func (task *Task) Start(parentWg *sync.WaitGroup) {
 
 // FinalMessage returns the final message after a task is complete
 func (task *Task) FinalMessage() string {
-	if task.success {
+	if task.Success {
 		return task.message.success
 	}
 
