@@ -10,8 +10,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"./pkg/tasks"
-	"./pkg/ui"
+	"github.com/YashMathur/spingroup/pkg/tasks"
+	"github.com/YashMathur/spingroup/pkg/ui"
 )
 
 // Spingroup struct holds information on the spin group
