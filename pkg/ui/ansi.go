@@ -42,6 +42,11 @@ func Move(r, c int) {
 	ansi("%d;%d%s", r, c, "H")
 }
 
+// MoveHorizontal moves cursor to column c on the same line
+func MoveHorizontal(c int) {
+	ansi("%d%s", c, "G")
+}
+
 // Clearleft clears the line
 func Clearleft() {
 	ansi("%d%s", 1, "K")

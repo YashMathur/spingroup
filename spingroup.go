@@ -71,13 +71,14 @@ func (sg *Spingroup) Wait() {
 	}
 
 	ui.Hide()
+	ui.Up(len(sg.tasks) + 1)
 
 	for loop := true; loop; {
 		var allDone = true
 
-		for i, task := range sg.tasks {
-			row := gui.StartRow + i
-			ui.Move(row, 1)
+		for _, task := range sg.tasks {
+			ui.Down(1)
+			ui.MoveHorizontal(1)
 
 			if !task.Done {
 				fmt.Print(gui.GetSpinner())
@@ -89,6 +90,8 @@ func (sg *Spingroup) Wait() {
 
 		if allDone {
 			break
+		} else {
+			ui.Up(len(sg.tasks))
 		}
 
 		gui.Step()
